@@ -1,13 +1,12 @@
 import { hash } from 'bcryptjs'
 import { OngsRepository } from 'repositories/ongs-repository'
 import { OngAlreadyExistsError } from './erros/ong-already-exist-error'
+import { GetLocationsByCepUseCase } from './utils/get-location-by-zip-code'
 
 export interface CreateOngUseCaseRequest {
   name: string
   phone: string
   cep: string
-  city: string
-  uf: string
   email: string
   password: string
 }
@@ -16,8 +15,11 @@ export class CreateOngUseCase {
   constructor(private ongsRepository: OngsRepository) {}
 
   async execute(data: CreateOngUseCaseRequest) {
+    let zipCodeValidation: GetLocationsByCepUseCase
+    zipCodeValidation = new GetLocationsByCepUseCase()
     const password_hash = await hash(data.password, 6)
     const ongExist = await this.ongsRepository.findByEmail(data.email)
+    const fullAddress = await zipCodeValidation.execute(data.cep)
 
     if (ongExist) {
       throw new OngAlreadyExistsError()
@@ -26,10 +28,10 @@ export class CreateOngUseCase {
     const ong = await this.ongsRepository.create({
       name: data.name,
       email: data.email,
-      cep: data.cep,
+      cep: fullAddress.code,
       phone: data.phone,
-      city: data.city,
-      uf: data.uf,
+      city: fullAddress.city,
+      uf: fullAddress.code,
       password_hash,
     })
 
