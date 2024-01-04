@@ -19,9 +19,9 @@ export class InMemoryPetsRepository implements PetsRepository {
       id: randomUUID(),
       created_at: new Date(),
       name: data.name,
-      ong_id: '',
-      description: '',
-      photo: '',
+      ong_id: data.ong_id,
+      description: data.description,
+      photo: data.photo,
       specie: AnimalSpecies.DOG,
       size: AnimalSize.BIG,
       age: AnimalAge.ADULT,
@@ -33,5 +33,9 @@ export class InMemoryPetsRepository implements PetsRepository {
 
     this.item.push(newPet)
     return newPet
+  }
+
+  async findByOngId(id: string) {
+    return this.item.find((item) => item.ong_id === id)
   }
 }

@@ -8,7 +8,7 @@ export class InMemoryOngsRepository implements OngsRepository {
 
   async create(data: Prisma.OngUncheckedCreateInput): Promise<Ong> {
     const ong: Ong = {
-      id: randomUUID(),
+      id: data.id || randomUUID(),
       city: data.city,
       uf: data.uf,
       created_at: new Date(),
@@ -35,6 +35,16 @@ export class InMemoryOngsRepository implements OngsRepository {
 
   async findByEmail(email: string): Promise<Ong | null> {
     const ong = this.item.find((ong) => ong.email === email)
+
+    if (!ong) {
+      return null
+    }
+
+    return ong || null
+  }
+
+  async findManyByUf(uf: string): Promise<Ong[] | null> {
+    const ong = this.item.filter((ong) => ong.uf === uf)
 
     if (!ong) {
       return null
